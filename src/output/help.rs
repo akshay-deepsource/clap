@@ -283,10 +283,10 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
 
         if let Some(s) = arg.short {
             self.good(&format!("-{}", s))
-        } else if !arg.is_positional() {
-            self.none(TAB)
-        } else {
+        } else if arg.is_positional() {
             Ok(())
+        } else {
+            self.none(TAB)
         }
     }
 
@@ -352,11 +352,11 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
 
                 self.spaces(spcs)?;
             }
-        } else if !next_line_help {
+        } else if next_line_help {
+            debug!("No");
+        } else {
             debug!("No, and not next_line");
             self.spaces(longest + 4 - display_width(&arg.to_string()))?;
-        } else {
-            debug!("No");
         }
         Ok(())
     }
@@ -513,15 +513,15 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
                     "Help::spec_vals: Found environment variable...[{:?}:{:?}]",
                     env.0, env.1
                 );
-                let env_val = if !a.is_set(ArgSettings::HideEnvValues) {
+                let env_val = if a.is_set(ArgSettings::HideEnvValues) {
+                    String::new()
+                } else {
                     format!(
                         "={}",
                         env.1
                             .as_ref()
                             .map_or(Cow::Borrowed(""), |val| val.to_string_lossy())
                     )
-                } else {
-                    String::new()
                 };
                 let env_info = format!("[env: {}{}]", env.0.to_string_lossy(), env_val);
                 spec_vals.push(env_info);
@@ -768,13 +768,13 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
             .filter_map(|arg| arg.help_heading)
             .collect::<IndexSet<_>>();
 
-        let mut first = if !pos.is_empty() {
+        let mut first = if pos.is_empty() {
+            true
+        } else {
             // Write positional args if any
             self.warning("ARGS:\n")?;
             self.write_args_unsorted(&pos)?;
             false
-        } else {
-            true
         };
 
         let unified_help = self.parser.is_set(AppSettings::UnifiedHelpMessage);

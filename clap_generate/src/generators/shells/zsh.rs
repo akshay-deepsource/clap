@@ -586,10 +586,10 @@ fn write_positionals_of(p: &App) -> String {
 
         let cardinality = if arg.is_set(ArgSettings::MultipleValues) {
             "*:"
-        } else if !arg.is_set(ArgSettings::Required) {
-            ":"
-        } else {
+        } else if arg.is_set(ArgSettings::Required) {
             ""
+        } else {
+            ":"
         };
 
         let a = format!(

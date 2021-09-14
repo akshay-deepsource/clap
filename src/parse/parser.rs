@@ -679,11 +679,11 @@ impl<'help, 'app> Parser<'help, 'app> {
                 self.inc_occurrence_of_arg(matcher, p);
 
                 // Only increment the positional counter if it doesn't allow multiples
-                if !p.settings.is_set(ArgSettings::MultipleValues) {
+                if p.settings.is_set(ArgSettings::MultipleValues) {
+                    parse_state = ParseState::Pos(p.id.clone());
+                } else {
                     pos_counter += 1;
                     parse_state = ParseState::ValuesDone;
-                } else {
-                    parse_state = ParseState::Pos(p.id.clone());
                 }
                 valid_arg_found = true;
             } else if self.is_set(AS::AllowExternalSubcommands) {
@@ -1652,7 +1652,9 @@ impl<'help, 'app> Parser<'help, 'app> {
         ty: ValueType,
         trailing_values: bool,
     ) {
-        if !arg.default_vals_ifs.is_empty() {
+        if arg.default_vals_ifs.is_empty() {
+            debug!("Parser::add_value: doesn't have conditional defaults");
+        } else {
             debug!("Parser::add_value: has conditional defaults");
             if matcher.get(&arg.id).is_none() {
                 for (id, val, default) in arg.default_vals_ifs.values() {
@@ -1681,11 +1683,16 @@ impl<'help, 'app> Parser<'help, 'app> {
                     }
                 }
             }
-        } else {
-            debug!("Parser::add_value: doesn't have conditional defaults");
         }
 
-        if !arg.default_vals.is_empty() {
+        if arg.default_vals.is_empty() {
+            debug!(
+                "Parser::add_value:iter:{}: doesn't have default vals",
+                arg.name
+            );
+
+            // do nothing
+        } else {
             debug!("Parser::add_value:iter:{}: has default vals", arg.name);
             if matcher.get(&arg.id).is_some() {
                 debug!("Parser::add_value:iter:{}: was used", arg.name);
@@ -1701,16 +1708,16 @@ impl<'help, 'app> Parser<'help, 'app> {
                     false,
                 );
             }
-        } else {
+        }
+
+        if arg.default_missing_vals.is_empty() {
             debug!(
-                "Parser::add_value:iter:{}: doesn't have default vals",
+                "Parser::add_value:iter:{}: doesn't have default missing vals",
                 arg.name
             );
 
             // do nothing
-        }
-
-        if !arg.default_missing_vals.is_empty() {
+        } else {
             debug!(
                 "Parser::add_value:iter:{}: has default missing vals",
                 arg.name
@@ -1738,13 +1745,6 @@ impl<'help, 'app> Parser<'help, 'app> {
                     // do nothing
                 }
             }
-        } else {
-            debug!(
-                "Parser::add_value:iter:{}: doesn't have default missing vals",
-                arg.name
-            );
-
-            // do nothing
         }
     }
 

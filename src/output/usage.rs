@@ -157,10 +157,10 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
             if self.p.is_set(AS::SubcommandsNegateReqs) || self.p.is_set(AS::ArgsNegateSubcommands)
             {
                 usage.push_str("\n    ");
-                if !self.p.is_set(AS::ArgsNegateSubcommands) {
-                    usage.push_str(&*self.create_help_usage(false));
-                } else {
+                if self.p.is_set(AS::ArgsNegateSubcommands) {
                     usage.push_str(&*name);
+                } else {
+                    usage.push_str(&*self.create_help_usage(false));
                 }
                 usage.push_str(" <");
                 usage.push_str(placeholder);
@@ -294,7 +294,9 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
                     .collect::<Vec<_>>()
                     .join(""),
             )
-        } else if !incl_reqs {
+        } else if incl_reqs {
+            Some("".into())
+        } else {
             debug!("Usage::get_args_tag:iter: incl_reqs=false, building secondary usage string");
             let highest_req_pos = self
                 .p
@@ -321,8 +323,6 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
                     .collect::<Vec<_>>()
                     .join(""),
             )
-        } else {
-            Some("".into())
         }
     }
 
