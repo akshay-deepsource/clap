@@ -2248,7 +2248,9 @@ impl<'help> App<'help> {
     #[doc(hidden)]
     pub fn _build(&mut self) {
         debug!("App::_build");
-        if !self.settings.is_set(AppSettings::Built) {
+        if self.settings.is_set(AppSettings::Built) {
+            debug!("App::_build: already built");
+        } else {
             // Make sure all the globally set flags apply to us as well
             self.settings = self.settings | self.g_settings;
 
@@ -2288,8 +2290,6 @@ impl<'help> App<'help> {
             #[cfg(debug_assertions)]
             self::debug_asserts::assert_app(self);
             self.settings.set(AppSettings::Built);
-        } else {
-            debug!("App::_build: already built");
         }
     }
 
@@ -2522,7 +2522,9 @@ impl<'help> App<'help> {
     pub fn _build_bin_names(&mut self) {
         debug!("App::_build_bin_names");
 
-        if !self.is_set(AppSettings::BinNameBuilt) {
+        if self.is_set(AppSettings::BinNameBuilt) {
+            debug!("App::_build_bin_names: already built");
+        } else {
             for mut sc in &mut self.subcommands {
                 debug!("App::_build_bin_names:iter: bin_name set...");
 
@@ -2549,8 +2551,6 @@ impl<'help> App<'help> {
                 sc._build_bin_names();
             }
             self.set(AppSettings::BinNameBuilt);
-        } else {
-            debug!("App::_build_bin_names: already built");
         }
     }
 

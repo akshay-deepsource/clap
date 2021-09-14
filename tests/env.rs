@@ -342,10 +342,10 @@ fn validator_invalid() {
                 .env("CLP_TEST_ENV_IV")
                 .takes_value(true)
                 .validator(|s| {
-                    if s != "env" {
-                        Ok(())
-                    } else {
+                    if s == "env" {
                         Err("is equal".to_string())
+                    } else {
+                        Ok(())
                     }
                 }),
         )

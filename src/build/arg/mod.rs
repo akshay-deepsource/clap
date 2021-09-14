@@ -4715,7 +4715,10 @@ impl<'help> Arg<'help> {
         } else {
             ' '
         });
-        if !self.val_names.is_empty() {
+        if self.val_names.is_empty() {
+            debug!("Arg::name_no_brackets: just name");
+            Cow::Borrowed(self.name)
+        } else {
             debug!("Arg::name_no_brackets: val_names={:#?}", self.val_names);
 
             if self.val_names.len() > 1 {
@@ -4729,9 +4732,6 @@ impl<'help> Arg<'help> {
             } else {
                 Cow::Borrowed(self.val_names.get(0).expect(INTERNAL_ERROR_MSG))
             }
-        } else {
-            debug!("Arg::name_no_brackets: just name");
-            Cow::Borrowed(self.name)
         }
     }
 }

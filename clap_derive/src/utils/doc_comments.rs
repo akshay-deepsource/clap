@@ -79,10 +79,10 @@ fn split_paragraphs(lines: &[&str]) -> Vec<String> {
 
         last_line += start + len;
 
-        if len != 0 {
-            Some(merge_lines(&slice[..len]))
-        } else {
+        if len == 0 {
             None
+        } else {
+            Some(merge_lines(&slice[..len]))
         }
     })
     .collect()
